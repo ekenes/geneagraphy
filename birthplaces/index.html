@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Ekenes Events</title>
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <script>
+    var dojoConfig = {
+      paths: {
+        modules: location.pathname.replace(/\/[^/]+$/, "") + "../resources"
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.6/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.6/"></script>
+
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/layers/FeatureLayer",
+      "esri/widgets/LayerList",
+      "esri/widgets/Legend",
+      "modules/symbols",
+      "dojo/domReady!"
+    ], function(
+      Map, MapView, FeatureLayer, 
+      LayerList, Legend, symbols
+    ) {
+
+      const portalItemId = "ee76f1b63753426891255cc406684dc4";
+
+      const eventsLayer = new FeatureLayer({
+        title: "birth places",
+        portalItem: {
+          id: portalItemId
+        },
+        definitionExpression: "EVENT = 'birth'",
+        renderer: {
+          type: "simple",
+          symbol: symbols.getFirefly("birth")
+        },
+        popupTemplate: {
+          title: "{NAME} {SURNAME}",
+          content: "Born on {DATE} in {PLACE}",
+          fieldInfos: [{
+            fieldName: "DATE",
+            format: {
+              dateFormat: "long-date"
+            }
+          }]
+        }
+      });
+
+      var map = new Map({
+        basemap: "dark-gray",
+        layers: [ eventsLayer ]
+      });
+
+      var view = new MapView({
+        container: "viewDiv",
+        map: map,
+        zoom: 3,
+        center: [-42, 18],
+        popup: {
+          dockEnabled: true,
+          dockOptions: {
+            breakpoint: false,
+            buttonEnabled: false
+          }
+        }
+      });
+
+      view.ui.add(new LayerList({ view: view }), "bottom-left");
+      view.ui.add(new Legend({ view: view }), "bottom-right");
+      
+    });
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+</body>
+</html>
